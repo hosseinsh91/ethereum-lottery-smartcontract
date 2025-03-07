@@ -1,8 +1,8 @@
-# **Decentralized Lottery Smart Contract**
+# **Decentralized Lottery Smart Contract with React Integration**
 
 ## **📌 Project Overview**
 
-This project implements a **decentralized lottery system** using **Solidity** smart contracts. Participants enter the lottery by sending ETH, and a **winner is selected randomly**. The smart contract ensures fairness and transparency, making it a secure way to conduct lotteries on the **Ethereum blockchain**.
+This project implements a **decentralized lottery system** using **Solidity** smart contracts with a **React front-end** for interacting with the blockchain. Participants enter the lottery by sending ETH, and a **winner is selected randomly**. The smart contract ensures fairness and transparency, making it a secure way to conduct lotteries on the **Ethereum blockchain**.
 
 ### **🚀 Key Features**
 
@@ -11,101 +11,85 @@ This project implements a **decentralized lottery system** using **Solidity** sm
 ✅ **Blockchain-based transaction verification**\
 ✅ **Integration with Web3.js and Ethers.js**\
 ✅ **Testing using Mocha and Chai**\
-✅ **Deployment via Truffle and Ganache**
+✅ **Deployment via Truffle and Ganache**\
+✅ **React Front-End for User Interaction**
 
 ---
 
-## **📌 Tech Stack & Dependencies**
+## **📌 Project Folder Structure**
 
-The project is built using:
-
-- **Solidity** (Smart contract language)
-- **Truffle** (Development and testing framework)
-- **Ganache** (Local blockchain for testing)
-- **Web3.js / Ethers.js** (Blockchain interaction libraries)
-- **Mocha & Chai** (Testing framework)
-
-### **📌 Required Dependencies**
-
-```json
-"dependencies": {
-  "@truffle/hdwallet-provider": "^1.0.41-1",
-  "chai": "^5.1.2",
-  "ethers": "^6.13.4",
-  "ganache": "^7.9.2",
-  "mocha": "^10.8.2",
-  "web3": "^4.15.0",
-  "ws": "^8.18.0"
-},
-"devDependencies": {
-  "solc": "^0.8.19"
-}
+```
+solidity-lottery-dapp/
+│── contracts/
+│   ├── Lottery.sol       # Solidity Smart Contract
+│
+│── test/
+│   ├── Lottery.test.js   # Test cases for the Lottery contract
+│
+│── migrations/
+│   ├── 1_initial_migration.js  # Migration file for deployment
+│
+│── build/   # Truffle build artifacts (not included in Git)
+│
+│── react/  # React Front-End
+│   ├── src/
+│   │   ├── App.js          # Main React Component
+│   │   ├── App.css         # CSS Styles
+│   │   ├── index.js        # React App Entry Point
+│   │   ├── index.css       # Global Styles
+│   │   ├── web3.js         # Web3 Configuration
+│   │   ├── lottery.js      # Smart Contract Interaction
+│   │   ├── reportWebVitals.js  # Performance Reports
+│   │   ├── setupTests.js   # Jest Test Setup
+│   ├── package.json       # React Dependencies
+│   ├── public/
+│   │   ├── index.html      # HTML Template
+│   ├── README.md          # React Project ReadMe
+│
+│── .gitignore
+│── package.json
+│── truffle-config.js
+│── README.md
 ```
 
 ---
 
-## **📌 .gitignore File**
+## **📌 Updating App.js to Access Lottery Contract**
+Ensure `App.js` correctly imports Web3 and the lottery contract:
 
-To prevent unnecessary files from being tracked in Git, add the following **.gitignore** file:
+```javascript
+import React, { useEffect, useState } from "react";
+import web3 from "./web3";
+import lottery from "./lottery";
 
-```plaintext
-# Node modules
-test/
-node_modules/
+const App = () => {
+    const [manager, setManager] = useState("");
+    const [players, setPlayers] = useState([]);
+    const [balance, setBalance] = useState("");
 
-# Truffle build artifacts
-build/
+    useEffect(() => {
+        const fetchContractData = async () => {
+            const manager = await lottery.methods.manager().call();
+            const players = await lottery.methods.getPlayers().call();
+            const balance = await web3.eth.getBalance(lottery.options.address);
+            setManager(manager);
+            setPlayers(players);
+            setBalance(balance);
+        };
+        fetchContractData();
+    }, []);
 
-# Environment variables and sensitive data
-.env
-secrets.json
+    return (
+        <div>
+            <h2>Lottery Contract</h2>
+            <p>Manager: {manager}</p>
+            <p>Players: {players.length}</p>
+            <p>Balance: {web3.utils.fromWei(balance, "ether")} ETH</p>
+        </div>
+    );
+};
 
-# Log files
-*.log
-
-# OS-specific files
-.DS_Store
-Thumbs.db
-```
-
----
-
-## **📌 Smart Contract: Lottery.sol**
-
-### **1️⃣ Smart Contract Code**
-
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
-
-contract Lottery {
-    address public manager;
-    address[] public players;
-    
-    constructor() {
-        manager = msg.sender;
-    }
-
-    function enter() public payable {
-        require(msg.value > .01 ether, "Minimum ETH required to enter lottery");
-        players.push(msg.sender);
-    }
-
-    function getRandomNumber() private view returns (uint) {
-        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, players)));
-    }
-
-    function pickWinner() public restricted {
-        uint index = getRandomNumber() % players.length;
-        payable(players[index]).transfer(address(this).balance);
-        players = new address[](0);
-    }
-
-    modifier restricted() {
-        require(msg.sender == manager, "Only manager can call this function");
-        _;
-    }
-}
+export default App;
 ```
 
 ---
@@ -116,6 +100,7 @@ contract Lottery {
 
 ```bash
 npm install
+cd react && npm install
 ```
 
 ### **2️⃣ Compile the Smart Contract**
@@ -136,17 +121,18 @@ npx truffle migrate --network development
 ganache-cli
 ```
 
-### **5️⃣ Run Tests**
+### **5️⃣ Start React Front-End**
 
 ```bash
-npm run test
+cd react
+npm start
 ```
 
 ---
 
 ## **📌 Conclusion**
 
-This project demonstrates a **fully decentralized lottery system** using Solidity smart contracts. By leveraging **blockchain technology**, it ensures **fairness, security, and transparency** in lottery operations.
+This project demonstrates a **fully decentralized lottery system** using Solidity smart contracts and a React front-end. By leveraging **blockchain technology**, it ensures **fairness, security, and transparency** in lottery operations while providing an interactive UI for users.
 
 ---
 
