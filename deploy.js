@@ -3,8 +3,8 @@ const Web3 = require('web3');
 const {abi , evm } = require('./compile');
 
 const provider = new ethers.providers.JsonRpcProvider(
-  'draft card knock develop border divert entire mesh oven pelican sentence climb',
-  'https://sepolia.infura.io/v3/39f78cf7983a49069e8b186014a236dc'
+  '',
+  ''
 )
 
 
